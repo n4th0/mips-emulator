@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <iostream>
 #include "alu.h"
+#include "desplazadores.h"
 #include <cstdint>
 using namespace std;
 
@@ -14,10 +15,12 @@ int32_t negador(int32_t b){
     for (int i = 0; i<32; i++) {
         aux = (prueba3 & mascara);
         if (!aux) {
-            b = b | (0x00000001 << i);
+            b = b | desplazadorIzquierda(0x00000001, i);
+            // b = b | (0x00000001 << i);
         }
 
-        prueba3 = prueba3 >> 1; 
+        prueba3 = desplazadorDerecha(prueba3, 1); 
+        // prueba3 = prueba3 >> 1; 
     }
 
     return b;
@@ -46,7 +49,8 @@ int32_t sumador(int32_t a, int32_t b, bool suma){
 
         if (aprima && bprima && carry) {
             // s 1 c 1
-            base = (base | (0x00000001 << i));
+            base = (base | desplazadorIzquierda(0x00000001, i));
+            // base = (base | (0x00000001 << i));
             carry = 1;
 
         } else if (aprima && bprima && !carry) {
@@ -59,7 +63,8 @@ int32_t sumador(int32_t a, int32_t b, bool suma){
 
         } else if (aprima && !bprima && !carry) {
             // s 1 c 0
-            base = (base | (0x00000001 << i));
+            base = (base | desplazadorIzquierda(0x00000001, i));
+            // base = (base | (0x00000001 << i));
 
         } else if (!aprima && bprima && carry) {
             // s 0 c 1
@@ -67,24 +72,29 @@ int32_t sumador(int32_t a, int32_t b, bool suma){
 
         } else if (!aprima && bprima && !carry) {
             // s 1 c 0
-            base = (base | (0x00000001 << i));
+            base = (base | desplazadorIzquierda(0x00000001, i));
+            // base = (base | (0x00000001 << i));
 
         } else if (!aprima && !bprima && carry) {
             // s 1 c 0
-            base = (base | (0x00000001 << i));
+            base = (base | desplazadorIzquierda(0x00000001, i));
+            // base = (base | (0x00000001 << i));
             carry = 0;
 
         } else if (!aprima && !bprima && !carry) {
             // s 0 c 0
         }
 
-        prueba1 = (prueba1 >> 1);
-        prueba2 = (prueba2 >> 1);
+        // prueba1 = (prueba1 >> 1);
+        // prueba2 = (prueba2 >> 1);
+        prueba1 = desplazadorDerecha(prueba1, 1);
+        prueba2 = desplazadorDerecha(prueba2, 1);
     }
 
     return base;
 }
 
+// TODO pensar como hacer esta funcion con los desplazadores nuevos
 int64_t booth(int32_t a, int32_t b){
     int64_t result;
     int64_t mascaraAbajo = 0x0000000000000001;
@@ -116,13 +126,16 @@ int64_t booth(int32_t a, int32_t b){
 
 
 void desplazadorDivision(int32_t &a, int32_t &b){
-    a = a << 1;
+
+    // a = a << 1;
+    a = desplazadorIzquierda(a, 1);
 
     if (b < 0) {
         a = a | 0x00000001;
     }
 
-    b = b << 1;
+    b = desplazadorIzquierda(b, 1);
+    // b = b << 1;
 
 }
 

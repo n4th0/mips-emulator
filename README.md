@@ -14,12 +14,12 @@ Podría no poner ninguna regla a la hora de hacer el emulador pero no me parecer
 el sistema de la alu usar las operaciones aritméticas que me ofrece C++. Es decir he de imponer ciertas normas para ver 
 que puedo y que no puedo hacer.
 
-- No puedo usar operadores aritméticos (+,-,*,/,%)
-- Puedo usar desplazadores (a pesar de que se pueden programar mediante puertas lógicas, un desplazador de 32 bits con esa cantidad de ifs sería infernal)
+- No puedo usar operadores aritméticos (+,-,*,/,%) ni desplazadores << / >>
 - Puedo usar enums para las señales, a pesar de que es posible la realización de la comunicación de la UC con la ALU mediante bits, lo voy a simplificar usando enums cuando su uso sea trivial
 
 ## Notas
 La memoria está simulada, en el sentido de que no se emula a bajo nivel como el caso de la ALU
+Hay desplazadores de 32 bits hechos con puertas lógicas
 
 ## Compilación (no disponible)
     make
@@ -29,3 +29,8 @@ La memoria está simulada, en el sentido de que no se emula a bajo nivel como el
 - El simulador MARS
 
 
+
+
+TODO
+
+Hacer un makefile
