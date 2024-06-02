@@ -14,7 +14,7 @@ Podría no poner ninguna regla a la hora de hacer el emulador pero no me parecer
 el sistema de la alu usar las operaciones aritméticas que me ofrece C++. Es decir he de imponer ciertas normas para ver 
 que puedo y que no puedo hacer.
 
-- No puedo usar operadores aritméticos (+,-,*,/,%) ni desplazadores << / >>
+- No puedo usar operadores aritméticos (+,-,*,/,%) ni desplazadores << / >> (la unica excepción es en la parte de memora, que debe estar simulada, pero aun así cuando sea necesario se usará una forma en la que no se requieran los operadores)
 - Puedo usar enums para las señales, a pesar de que es posible la realización de la comunicación de la UC con la ALU mediante bits, lo voy a simplificar usando enums cuando su uso sea trivial
 
 ## Notas
