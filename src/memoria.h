@@ -25,11 +25,13 @@ struct Word{
 
 // esto es para simular la memoria de mips
 class Memoria{
+
     private:
         vector<B> bytes; 
         vector<Half> halfword;
         vector<Word> word;
         bool checkColisions(); // esta funcion debe de decirnos si hay solapamiento en memoria
+
     public:
         Memoria();
         // devuelve la posicion, si no la encuentra es -1 (excepcion)

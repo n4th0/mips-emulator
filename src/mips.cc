@@ -1,8 +1,11 @@
 #include <cstdint>
 #include "debugg.h"
 #include "alu.h"
+#include "desplazadores.h"
+#include "memoria.h"
 #include <exception>
 #include <iostream>
+
 using namespace std;
 
 #define BASE 268500992
@@ -14,7 +17,6 @@ using namespace std;
  * or  | 
  * xor ^
  * not ~
- * desplazamientos <</>>
  *
  * lógicas (y por tanto el uso de ifs):
  *
@@ -36,32 +38,10 @@ using namespace std;
  * fase 2:
  * modularizarlo en poo
  * 
- * ----REG----
- *  privados:
- *  32 variables de registros
- *  públicos:
- *  setters y getters
- *  buscadores ?
- *  friend << (mostrado guapo xd)
  *
  *
- * ----ALU----
- * privados:
- * flags: overflow, zero...
- * registros ? 
- * públicos:
- * suma/resta,
- * mult,
- * div,
- * desp
+ * ----Memoria----
  *
- * ----UC----
- * enums
- * privados:
- * públicos:
- * decodificacion de la instrucción
- * llamada a la alu por decodificacion
- * 
  *
  * fase 3:
  * lectura de ficheros
@@ -211,13 +191,9 @@ int main(){
     int32_t B;
     int32_t MemoryRegister;
 
-    // memoria simulada
-    //
-    // lo que puede estar bien es hacer una clase que se encargue de esta movida
-    //
-    //
+    Memoria Memoria;
 
-    int32_t MemoriaI[1000]; 
+    // int32_t MemoriaI[1000]; 
 
     int32_t AluOut = 0;
 
@@ -231,25 +207,26 @@ int main(){
 
 
     iniciarRegistros(Registers);
-    Registers[6] = 5;
+    Registers[10] = 5;
 
 
-    Instruccion = 0x2084000F;
-
-    MemoriaI[0] = 0x2084000F;
+    Memoria.putWordInMemory(0, 0x2149000f);
+    // MemoriaI[0] = 0x2084000F;
 
 
     // fase 1
-    Instruccion = MemoriaI[PC];
+    // Instruccion = MemoriaI[PC];
+    Instruccion = Memoria.getWord(PC);
 
     alu(suma, PC, 0x00000004, AluOut);
     PC = AluOut;
-    cout << PC <<endl;
+    // cout << PC <<endl;
 
     // fase 2
-    op =  ((Instruccion & 0xFC000000)>> 26);
-    A = Registers[(Instruccion & 0x03E00000)>> 21];
-    B = Registers[(Instruccion & 0x001F0000)>> 16];
+    op = desplazadorDerecha((Instruccion & 0xFC000000), 26);
+    // op =  ((Instruccion & 0xFC000000)>> 26);
+    A = Registers[desplazadorDerecha((Instruccion & 0x03E00000),21)];
+    B = Registers[desplazadorDerecha((Instruccion & 0x001F0000), 16)];
 
     int16_t inmediato = (Instruccion & 0x0000FFFF);
 
@@ -270,28 +247,28 @@ int main(){
                 case 0b00100100:
                     alu(ando, A, B, AluOut);
                     // fase 4
-                    Registers[(Instruccion & 0x0000F800) >>11] = AluOut;
+                    Registers[desplazadorDerecha((Instruccion & 0x0000F800), 11)] = AluOut;
                     break;
 
                     // or    100101
                 case 0b00100101: 
                     alu(oro, A, B, AluOut);
                     // fase 4
-                    Registers[(Instruccion & 0x0000F800) >>11] = AluOut;
+                    Registers[desplazadorDerecha((Instruccion & 0x0000F800), 11)] = AluOut;
                     break;
 
                     // add  100000
                 case 0b00100000: 
                     alu(suma, A, B, AluOut);
                     // fase 4
-                    Registers[(Instruccion & 0x0000F800) >>11] = AluOut;
+                    Registers[desplazadorDerecha((Instruccion & 0x0000F800), 11)] = AluOut;
                     break;
 
                     // sub 100010
                 case 0b00100010: 
                     alu(resta, A, B, AluOut);
                     // fase 4
-                    Registers[(Instruccion & 0x0000F800) >>11] = AluOut;
+                    Registers[desplazadorDerecha((Instruccion & 0x0000F800), 11)] = AluOut;
                     break;
                 case 0b00000010:
                     // srl $9, $10, 15
@@ -311,23 +288,29 @@ int main(){
         case 0b001000:
             alu(suma,  A, inmediato,  AluOut);
             // fase 4
-            Registers[(Instruccion & 0x001F0000)>>16] = AluOut;
+            Registers[desplazadorDerecha((Instruccion & 0x001F0000), 16)] = AluOut;
             break;
 
         // lw
         case 0b000011:
             alu(suma,  A, inmediato,  AluOut);
             // fase 4
-            MemoryRegister = MemoriaI[AluOut];
+            MemoryRegister = Memoria.getWord(AluOut);
+            // MemoryRegister = MemoriaI[AluOut];
             // fase 5
-            Registers[(Instruccion & 0x0003E000)>>21] = MemoryRegister;
+            Registers[desplazadorDerecha((Instruccion & 0x0003E000), 21)] = MemoryRegister;
             break;
 
         // sw
         case 0b000001:
             alu(suma,  A, inmediato,  AluOut);
             // fase 4
-            MemoriaI[AluOut] = Registers[(Instruccion & 0x0003E000)>>21];
+            if (Memoria.putWordInMemory(AluOut, Registers[desplazadorDerecha((Instruccion & 0x0003E000), 21)])) {
+                cout << "error memoria";
+            }
+
+            // MemoriaI[AluOut] = Registers[desplazadorDerecha((Instruccion & 0x0003E000), 21)];
+            Memoria.putWordInMemory(AluOut, Registers[desplazadorDerecha((Instruccion & 0x0003E000), 21)]);
 
             break;
 
