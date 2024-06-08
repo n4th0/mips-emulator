@@ -1,6 +1,7 @@
 #include <cstdint>
 #include "debugg.h"
 #include "alu.h"
+#include "syscall.h"
 #include "desplazadores.h"
 #include "memoria.h"
 #include <exception>
@@ -32,18 +33,8 @@ using namespace std;
  *
  * testear antes de cada fase
  *
- * fase 1:
- * hacer la funcionalidad, hacer que decodifique la instrucción correctamente
- *
- * fase 2:
- * modularizarlo en poo
- * 
- *
- *
- * ----Memoria----
- *
- *
  * fase 3:
+ * quiero morirme
  * lectura de ficheros
  *
  *
@@ -62,7 +53,6 @@ enum OperacionAlu{
     division,
     oro,
     ando
-
 };
 
 /*
@@ -82,7 +72,7 @@ void error(errorType e){
  * salidas : aluout y zero
  *
  * */
-bool alu( OperacionAlu I, int32_t A, int32_t B, int32_t & aluOut){ 
+bool alu(OperacionAlu I, int32_t A, int32_t B, int32_t & aluOut){ 
 
     switch (I) {
         case suma:
@@ -174,7 +164,7 @@ void iniciarRegistros(int32_t * R){
  * */
 
 void printRegisters(int32_t * R){
-    cout << "----------------------------------------------------------------------------------------------------------------------------------"<< endl;
+    cout <<endl<< "----------------------------------------------------------------------------------------------------------------------------------"<< endl;
     for (int i = 0; i<32; i++) {
         cout << "| " << R[i] <<" ";
     }
@@ -203,145 +193,161 @@ int main(){
     char op; 
     char func; 
 
-    bool zero = false;
+    // bool zero = false;
 
+
+
+
+
+    // leer del archivo esta por ver
+    Memoria.putWordInMemory(0, 0x2008000a);
+    Memoria.putWordInMemory(4, 0x2009001e);
+    Memoria.putWordInMemory(8, 0x01095020);
+
+    Memoria.putWordInMemory(12, 0x01282022);
+    Memoria.putWordInMemory(16, 0x20020001);
+
+    Memoria.putWordInMemory(20, 0x0000000c);
 
     iniciarRegistros(Registers);
-    Registers[10] = 5;
+
+    while (true) {
 
 
-    Memoria.putWordInMemory(0, 0x2149000f);
-    // MemoriaI[0] = 0x2084000F;
+        // fase 1
+        // Instruccion = MemoriaI[PC];
+        Instruccion = Memoria.getWord(PC);
 
+        alu(suma, PC, 0x00000004, AluOut);
+        PC = AluOut;
+        // cout << PC <<endl;
 
-    // fase 1
-    // Instruccion = MemoriaI[PC];
-    Instruccion = Memoria.getWord(PC);
+        // fase 2
+        op = desplazadorDerecha((Instruccion & 0xFC000000), 26);
+        // op =  ((Instruccion & 0xFC000000)>> 26);
+        A = Registers[desplazadorDerecha((Instruccion & 0x03E00000),21)];
+        B = Registers[desplazadorDerecha((Instruccion & 0x001F0000), 16)];
 
-    alu(suma, PC, 0x00000004, AluOut);
-    PC = AluOut;
-    // cout << PC <<endl;
+        int16_t inmediato = (Instruccion & 0x0000FFFF);
 
-    // fase 2
-    op = desplazadorDerecha((Instruccion & 0xFC000000), 26);
-    // op =  ((Instruccion & 0xFC000000)>> 26);
-    A = Registers[desplazadorDerecha((Instruccion & 0x03E00000),21)];
-    B = Registers[desplazadorDerecha((Instruccion & 0x001F0000), 16)];
+        func = (Instruccion & 0x0000003F);
 
-    int16_t inmediato = (Instruccion & 0x0000FFFF);
+        alu(suma, PC, inmediato, AluOut);
 
-    func = (Instruccion & 0x0000003F);
+        // fase 3
+        switch (op) {
+            // tipo R
+            case 0b000000:
+                switch (func) {
+                    // TODO 
+                    // añadir instrucciones de multiplicacion y division
 
-    alu(suma, PC, inmediato, AluOut);
+                    // and   100100
+                    case 0b00100100:
+                        alu(ando, A, B, AluOut);
+                        // fase 4
+                        Registers[desplazadorDerecha((Instruccion & 0x0000F800), 11)] = AluOut;
+                        break;
 
+                        // or    100101
+                    case 0b00100101: 
+                        alu(oro, A, B, AluOut);
+                        // fase 4
+                        Registers[desplazadorDerecha((Instruccion & 0x0000F800), 11)] = AluOut;
+                        break;
 
-    // fase 3
-    switch (op) {
-        // tipo R
-        case 0b000000:
-            switch (func) {
-                // TODO 
-                // añadir instrucciones de multiplicacion y division
+                        // add  100000
+                    case 0b00100000: 
+                        alu(suma, A, B, AluOut);
+                        // fase 4
+                        Registers[desplazadorDerecha((Instruccion & 0x0000F800), 11)] = AluOut;
+                        break;
 
-                // and   100100
-                case 0b00100100:
-                    alu(ando, A, B, AluOut);
-                    // fase 4
-                    Registers[desplazadorDerecha((Instruccion & 0x0000F800), 11)] = AluOut;
-                    break;
+                        // sub 100010
+                    case 0b00100010: 
+                        alu(resta, A, B, AluOut);
+                        // fase 4
+                        Registers[desplazadorDerecha((Instruccion & 0x0000F800), 11)] = AluOut;
+                        break;
+                    case 0b00000010:
+                        // srl $9, $10, 15
+                        // 000000 00000 01010 01001 01111 000010
+                        // 6 5 registro destinoregistro cantidadDesp func
 
-                    // or    100101
-                case 0b00100101: 
-                    alu(oro, A, B, AluOut);
-                    // fase 4
-                    Registers[desplazadorDerecha((Instruccion & 0x0000F800), 11)] = AluOut;
-                    break;
+                        break;
+                    case 0b00000000:
+                        // sll $9, $10, 15
+                        // 000000 00000 01010 01001 01111 000000
+                        break;
 
-                    // add  100000
-                case 0b00100000: 
-                    alu(suma, A, B, AluOut);
-                    // fase 4
-                    Registers[desplazadorDerecha((Instruccion & 0x0000F800), 11)] = AluOut;
-                    break;
+                    case 0b00001100:
+                        // syscall
+                        syscall(Registers);
+                        break;
+                }
 
-                    // sub 100010
-                case 0b00100010: 
-                    alu(resta, A, B, AluOut);
-                    // fase 4
-                    Registers[desplazadorDerecha((Instruccion & 0x0000F800), 11)] = AluOut;
-                    break;
-                case 0b00000010:
-                    // srl $9, $10, 15
-                    // 000000 00000 01010 01001 01111 000010
-                    // 6 5 registro destinoregistro cantidadDesp func
-                    
-                    break;
-                case 0b00000000:
-                    // sll $9, $10, 15
-                    // 000000 00000 01010 01001 01111 000000
-                    break;
-            }
+                break;
 
-            break;
+                // addi
+            case 0b001000:
+                alu(suma,  A, inmediato,  AluOut);
+                // fase 4
+                Registers[desplazadorDerecha((Instruccion & 0x001F0000), 16)] = AluOut;
+                break;
 
-        // addi
-        case 0b001000:
-            alu(suma,  A, inmediato,  AluOut);
-            // fase 4
-            Registers[desplazadorDerecha((Instruccion & 0x001F0000), 16)] = AluOut;
-            break;
+                // lw
+            case 0b000011:
+                alu(suma,  A, inmediato,  AluOut);
+                // fase 4
+                MemoryRegister = Memoria.getWord(AluOut);
+                // MemoryRegister = MemoriaI[AluOut];
+                // fase 5
+                Registers[desplazadorDerecha((Instruccion & 0x0003E000), 21)] = MemoryRegister;
+                break;
 
-        // lw
-        case 0b000011:
-            alu(suma,  A, inmediato,  AluOut);
-            // fase 4
-            MemoryRegister = Memoria.getWord(AluOut);
-            // MemoryRegister = MemoriaI[AluOut];
-            // fase 5
-            Registers[desplazadorDerecha((Instruccion & 0x0003E000), 21)] = MemoryRegister;
-            break;
+                // sw
+            case 0b000001:
+                alu(suma,  A, inmediato,  AluOut);
+                // fase 4
+                if (Memoria.putWordInMemory(AluOut, Registers[desplazadorDerecha((Instruccion & 0x0003E000), 21)])) {
+                    cout << "error memoria";
+                }
 
-        // sw
-        case 0b000001:
-            alu(suma,  A, inmediato,  AluOut);
-            // fase 4
-            if (Memoria.putWordInMemory(AluOut, Registers[desplazadorDerecha((Instruccion & 0x0003E000), 21)])) {
-                cout << "error memoria";
-            }
+                // MemoriaI[AluOut] = Registers[desplazadorDerecha((Instruccion & 0x0003E000), 21)];
+                Memoria.putWordInMemory(AluOut, Registers[desplazadorDerecha((Instruccion & 0x0003E000), 21)]);
 
-            // MemoriaI[AluOut] = Registers[desplazadorDerecha((Instruccion & 0x0003E000), 21)];
-            Memoria.putWordInMemory(AluOut, Registers[desplazadorDerecha((Instruccion & 0x0003E000), 21)]);
+                break;
 
-            break;
+                // beq
+            case 0b000100:
+                // fase 3
+                if(alu(resta,  A, B)){
+                    PC = AluOut;
+                }
 
-        // beq
-        case 0b000100:
-            // fase 3
-            if(alu(resta,  A, B)){
-                PC = AluOut;
-            }
+                break;
 
-            break;
+                // bne
+            case 0b000101:
+                // fase 3
+                if(!alu(resta,  A, B)){
+                    PC = AluOut;
+                }
 
-        // bne
-        case 0b000101:
-            // fase 3
-            if(!alu(resta,  A, B)){
-                PC = AluOut;
-            }
-            
-            break;
+                break;
 
-        // j
-        case 0b000010:
+                // j
+            case 0b000010:
 
-            // no se requiere la alu en teoria
-            // TODO queda por ver
+                // no se requiere la alu en teoria
+                // TODO queda por ver
 
+                break;
+        }
+        if (PC > 20) 
             break;
     }
     printRegisters(Registers);
-    
 
 }
 

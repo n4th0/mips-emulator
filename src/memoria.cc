@@ -51,8 +51,6 @@ bool Memoria::checkColisions(){
 // 3 => word
 int Memoria::searchInMemory(int32_t direccion, int codigo){
 
-    int bajo = 0;
-    int arriba, media;
 
     switch (codigo) {
         case 1:
