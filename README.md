@@ -17,20 +17,14 @@ que puedo y que no puedo hacer.
 - No puedo usar operadores aritméticos (+,-,*,/,%) ni desplazadores << / >> (la unica excepción es en la parte de memora, que debe estar simulada, pero aun así cuando sea necesario se usará una forma en la que no se requieran los operadores)
 - Puedo usar enums para las señales, a pesar de que es posible la realización de la comunicación de la UC con la ALU mediante bits, lo voy a simplificar usando enums cuando su uso sea trivial
 
-## Notas
-La memoria está simulada, en el sentido de que no se emula a bajo nivel como el caso de la ALU
-Hay desplazadores de 32 bits hechos con puertas lógicas
-
-## Compilación (no disponible)
+## Compilación 
     make
 
+## Notas
+La memoria está simulada, en el sentido de que no se emula a bajo nivel como el caso de la ALU.
+
+
 ## Inspiraciones/Fuentes de información
-- La asignatura de EC de la carrera de ingenieria informática
-- El simulador MARS
+- La asignatura de EC de la carrera de ingenieria informática.
+- El simulador MARS.
 
-
-
-
-TODO
-
-Hacer un makefile

@@ -4,7 +4,6 @@
 #include "syscall.h"
 #include "desplazadores.h"
 #include "memoria.h"
-#include <exception>
 #include <iostream>
 
 using namespace std;
@@ -200,12 +199,13 @@ int main(){
 
 
     // leer del archivo esta por ver
+
     Memoria.putWordInMemory(0, 0x2008000a);
     Memoria.putWordInMemory(4, 0x2009001e);
     Memoria.putWordInMemory(8, 0x01095020);
 
     Memoria.putWordInMemory(12, 0x01282022);
-    Memoria.putWordInMemory(16, 0x20020001);
+    Memoria.putWordInMemory(16, 0x2002000A);
 
     Memoria.putWordInMemory(20, 0x0000000c);
 
@@ -346,8 +346,8 @@ int main(){
         }
         if (PC > 20) 
             break;
+        printRegisters(Registers);
     }
-    printRegisters(Registers);
 
 }
 
