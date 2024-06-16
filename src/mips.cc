@@ -1,5 +1,5 @@
 #include <cstdint>
-#include "debugg.h"
+// #include "debugg.h"
 #include "alu.h"
 #include "syscall.h"
 #include "desplazadores.h"
@@ -26,7 +26,7 @@ using namespace std;
  * equal == 
  *
  *
- * No va a soportar pseudo instrucciones, 
+ * No va a soportar pseudo instrucciones,  (ya veremos)
  * a pesar de que la implementación no sería demasiado comleja
  * de momento no se van a implementar
  *
@@ -69,7 +69,6 @@ void error(errorType e){
 /*
  * entradas : dos registros de 32 bits y código de operacion
  * salidas : aluout y zero
- *
  * */
 bool alu(OperacionAlu I, int32_t A, int32_t B, int32_t & aluOut){ 
 
@@ -239,10 +238,8 @@ int main(){
             // tipo R
             case 0b000000:
                 switch (func) {
-                    // TODO 
-                    // añadir instrucciones de multiplicacion y division
 
-                    // and   100100
+                        // and   100100
                     case 0b00100100:
                         alu(ando, A, B, AluOut);
                         // fase 4
@@ -269,15 +266,45 @@ int main(){
                         // fase 4
                         Registers[desplazadorDerecha((Instruccion & 0x0000F800), 11)] = AluOut;
                         break;
+
                     case 0b00000010:
                         // srl $9, $10, 15
-                        // 000000 00000 01010 01001 01111 000010
-                        // 6 5 registro destinoregistro cantidadDesp func
-
                         break;
+
                     case 0b00000000:
                         // sll $9, $10, 15
-                        // 000000 00000 01010 01001 01111 000000
+                        break;
+
+                    case 0b00100110:
+                        // xor $9, $10, $2
+                        break;
+
+                    case 0b00010000:
+                        // mfhi $9
+                        break;
+
+                    case 0b00010010:
+                        // mflo $9
+                        break;
+
+                    case 0b00010001:
+                        // mthi $9
+                        break;
+
+                    case 0b00010011:
+                        // mtlo $9
+                        break;
+
+                    case 0b00100111:
+                        // nor $9 $9 $9
+                        break;
+
+                    case 0b00000011:
+                        // sra $9, $1, 10
+                        break;
+
+                    case 0b00011010:
+                        // div $9, $1
                         break;
 
                     case 0b00001100:
@@ -301,6 +328,7 @@ int main(){
                 // fase 4
                 MemoryRegister = Memoria.getWord(AluOut);
                 // MemoryRegister = MemoriaI[AluOut];
+
                 // fase 5
                 Registers[desplazadorDerecha((Instruccion & 0x0003E000), 21)] = MemoryRegister;
                 break;
@@ -318,13 +346,28 @@ int main(){
 
                 break;
 
+                // lb
+            case 0b100000:
+                break;
+
+                // sb
+            case 0b101000:
+                break;
+
+                // lh
+            case 0b100001:
+                break;
+
+                // sh
+            case 0b100100:
+                break;
+
                 // beq
             case 0b000100:
                 // fase 3
                 if(alu(resta,  A, B)){
                     PC = AluOut;
                 }
-
                 break;
 
                 // bne
@@ -333,7 +376,23 @@ int main(){
                 if(!alu(resta,  A, B)){
                     PC = AluOut;
                 }
+                break;
 
+
+                // ori
+            case 0b001101:
+                break;
+
+                // andi
+            case 0b001100:
+                break;
+
+                // xori
+            case 0b001110:
+                break;
+
+                // mul 
+            case 0b011100:
                 break;
 
                 // j
@@ -344,8 +403,10 @@ int main(){
 
                 break;
         }
+
         if (PC > 20) 
             break;
+
         printRegisters(Registers);
     }
 
