@@ -2,7 +2,7 @@
 #define  _LEERARCHIVO_H_
 #include <iostream>
 #include <string>
-#include "memoria.h"
+#include "../mips/memoria.h"
 using namespace std;
 
 #define S_LW "lw"

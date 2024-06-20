@@ -4,7 +4,7 @@ CC=g++
 
 
 mips: $(OBJS)
-	$(CC) $(OPTS) $(OBJS) -o mips
+	$(CC) $(OPTS) $(OBJS) -o mips-emu
 
 
 mips.o: mips.cc alu.h desplazadores.h
