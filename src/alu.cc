@@ -164,10 +164,8 @@ int64_t booth(int32_t a, int32_t b){
 
         q = (down & mascaraAbajo);
 
-
         desplazadorBooth(up, down);
         // result = result >> 1;
-
     }
 
     return ttos(up, down);
@@ -185,7 +183,6 @@ void desplazadorDivision(int32_t &a, int32_t &b){
 
     b = desplazadorIzquierda(b, 1);
     // b = b << 1;
-
 }
 
 // grande a 
@@ -198,16 +195,13 @@ void divisionSinRestauracion(int32_t a, int32_t b, int32_t &cociente, int32_t &r
     dw = a;
 
     for (int i = 0; i < 32; i++) {
-
         if (up < 0) {
-
             desplazadorDivision(up, dw);
             up = sumador(up,  b, true);
 
         } else {
             desplazadorDivision(up, dw);
             up = sumador(up,  b, false);
-
         }
 
         if (up < 0) {

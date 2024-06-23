@@ -25,20 +25,6 @@ using namespace std;
  * not !
  * equal == 
  *
- *
- * No va a soportar pseudo instrucciones,  (ya veremos)
- * a pesar de que la implementación no sería demasiado comleja
- * de momento no se van a implementar
- *
- * testear antes de cada fase
- *
- * fase 3:
- * quiero morirme
- * lectura de ficheros
- *
- *
- *
- *
  */
 
 enum errorType{
@@ -169,7 +155,8 @@ void printRegisters(int32_t * R){
 
 int main(){
     int64_t aux; 
-
+    int32_t a;
+    int32_t b;
     int32_t Registers[32];
     int32_t hi;
     int32_t lo;
@@ -191,14 +178,13 @@ int main(){
 
     // bool zero = false;
 
-    Memoria.putWordInMemory(0, 0x2008000a);
-    Memoria.putWordInMemory(4, 0x2009001e);
-    Memoria.putWordInMemory(8, 0x01095020);
+    Memoria.putWordInMemory(0, 0x2108000a);
+    Memoria.putWordInMemory(4, 0x21290005);
+    Memoria.putWordInMemory(8, 0x00085043);
 
-    Memoria.putWordInMemory(12, 0x01282022);
-    Memoria.putWordInMemory(16, 0x2002000A);
 
-    Memoria.putWordInMemory(20, 0x0000000c);
+    Memoria.putWordInMemory(12, 0x2002000A); // addi $v0, %zero, 10
+    Memoria.putWordInMemory(16, 0x0000000c); // syscall
 
     iniciarRegistros(Registers);
 
@@ -261,18 +247,24 @@ int main(){
 
                     case 0b00000010:
                         // srl $9, $10, 15
-                        Registers[desplazadorDerecha((Instruccion & 0x03E00000),21)] = desplazadorDerecha((Instruccion & 0x03E00000), (int)shmt);
+                        Registers[desplazadorDerecha((Instruccion & 0x0000F800), 11)] = desplazadorDerecha((Instruccion & 0x03E00000), (int)shmt);
                         break;
 
                     case 0b00000000:
                         // sll $9, $10, 15
-                        Registers[desplazadorDerecha((Instruccion & 0x03E00000),21)] = desplazadorIzquierda((Instruccion & 0x03E00000), (int)shmt);
+                        Registers[desplazadorDerecha((Instruccion & 0x0000F800), 11)] = desplazadorIzquierda((Instruccion & 0x03E00000), (int)shmt);
                         break;
 
                     case 0b00100110:
                         // xor $9, $10, $2
-                        break;
+                        a = negador(A);
+                        b = negador(B);
+                        a = B & a;
+                        b = A & b;
+                        AluOut = a | b;
+                        Registers[desplazadorDerecha((Instruccion & 0x0000F800), 11)] = AluOut;
 
+                        break;
                     case 0b00010000:
                         // mfhi $9
                         Registers[desplazadorDerecha((Instruccion & 0x03E00000),21)] = hi;
@@ -285,30 +277,31 @@ int main(){
 
                     case 0b00010001:
                         // mthi $9
-                        hi = Registers[desplazadorDerecha((Instruccion & 0x03E00000),21)];
+                        hi = A;
                         break;
 
                     case 0b00010011:
                         // mtlo $9
-                        lo = Registers[desplazadorDerecha((Instruccion & 0x03E00000),21)];
+                        lo = A;
                         break;
 
                     case 0b00100111:
                         // nor $9 $9 $9
-                        break;
+                        AluOut = A | B;
+                        AluOut = negador(AluOut);
 
+                        break;
                     case 0b00000011:
                         // sra $9, $1, 10
-                        Registers[desplazadorDerecha((Instruccion & 0x03E00000),21)] = desplazadorDerecha((Instruccion & 0x03E00000), (int)shmt);
+                        // 00085043
+                        // 0000 0000 0001 1111 0000 0000 0000 0000
+                        // 0000 0000 000 01000 01010 00001 000011
+                        Registers[desplazadorDerecha((Instruccion & 0x0000F800), 11)] = desplazadorDerecha(B, (int)shmt);
                         break;
 
                     case 0b00011010:
                         // div $9, $1
-                        divisionSinRestauracion(
-                                Registers[desplazadorDerecha((Instruccion & 0x03E00000),21)], 
-                                Registers[desplazadorDerecha((Instruccion & 0x03E00000),21)], 
-                                hi, 
-                                lo);
+                        divisionSinRestauracion( A, B, hi, lo);
                         break;
 
                     case 0b00001100:
@@ -412,7 +405,6 @@ int main(){
                 }
                 break;
 
-
                 // ori
             case 0b001101:
                 AluOut = A | inmediato;
@@ -435,20 +427,15 @@ int main(){
 
                 // mul 
             case 0b011100:
-
-                aux = booth(Registers[desplazadorDerecha((Instruccion & 0x0003E000), 26)], Registers[desplazadorDerecha((Instruccion & 0x0003E000), 21)]);
-                hi = 0x00000000FFFFFFFF & desplazadorDerecha(aux, 32);
-                hi = 0x00000000FFFFFFFF & aux;
-
+                aux = booth(A, B);
+                hi =  desplazadorDerecha(0xFFFFFFFF00000000 & aux, 32);
+                lo = 0x00000000FFFFFFFF & aux;
                 break;
 
                 // j
             case 0b000010:
                 break;
         }
-
-        if (PC > 20) 
-            break;
 
         printRegisters(Registers);
     }
