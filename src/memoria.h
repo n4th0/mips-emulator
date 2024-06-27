@@ -37,6 +37,9 @@ class Memoria{
         // devuelve la posicion, si no la encuentra es -1 (excepcion)
         int searchInMemory(int32_t direccion, int codigo); 
 
+        vector<int32_t> readFile(string name);
+        bool useVector(vector<int32_t> v);
+
         char getByte(int position); 
         int16_t getHalf(int position);
         int32_t getWord(int position);

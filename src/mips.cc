@@ -153,7 +153,16 @@ void printRegisters(int32_t * R){
 
 }
 
-int main(){
+int main(int argc, char **argv){
+    string filename;
+    if (argc == 2) {
+        filename = argv[1];
+    }else {
+        cout << "Uso: \n ./mips-emu nombreDelArchivo"<<endl;
+    }
+
+
+
     int64_t aux; 
     int32_t a;
     int32_t b;
@@ -177,14 +186,6 @@ int main(){
     char func; 
 
     // bool zero = false;
-
-    Memoria.putWordInMemory(0, 0x2108000a);
-    Memoria.putWordInMemory(4, 0x21290005);
-    Memoria.putWordInMemory(8, 0x00085043);
-
-
-    Memoria.putWordInMemory(12, 0x2002000A); // addi $v0, %zero, 10
-    Memoria.putWordInMemory(16, 0x0000000c); // syscall
 
     iniciarRegistros(Registers);
 

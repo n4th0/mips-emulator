@@ -2,14 +2,26 @@
 #include <iostream>
 #include <cstdint>
 #include <vector>
+#include <fstream>
 #include "memoria.h"
 
 using namespace std;
 
-Memoria::Memoria(){
-    // tiene que añadir las instrucciones al vector de words 
-    // empezando por la posición 0x00400000
+vector<int32_t> Memoria::readFile(string name){
+    fstream fr;
+    int32_t aux;
+    vector<int32_t> vectorp;
 
+    fr.open(name, ios::binary | ios::in);
+
+    if (!fr.is_open())
+        throw "error file";
+
+    while (fr.read((char *)&aux, sizeof(int32_t))) 
+        vectorp.push_back(aux);
+
+    fr.close();
+    return vectorp;
 }
 
 // esta funcion debe de decirnos si hay solapamiento en memoria entre los vectores
@@ -45,6 +57,13 @@ bool Memoria::checkColisions(){
     return false;
 } 
 
+bool Memoria::useVector(vector<int32_t> v){
+    for (unsigned int i = 0; i<v.size(); i++) {
+        this->putWordInMemory((i*4)+0x00400000, v[i]);
+    }
+
+    return true;
+}
 
 // 1 => bytes
 // 2 => halfword
