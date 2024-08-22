@@ -1,11 +1,16 @@
 
 #include <iostream>
 #include <cstdint>
+#include <string>
 #include <vector>
 #include <fstream>
 #include "memoria.h"
 
 using namespace std;
+
+Memoria::Memoria(){
+
+}
 
 vector<int32_t> Memoria::readFile(string name){
     fstream fr;
@@ -134,6 +139,17 @@ int Memoria::searchInMemory(int32_t direccion, int codigo){
 
 
     throw "error not found";
+}
+
+void Memoria::printMemory(int a){
+    if (a == 0) {
+        for (unsigned i = 0; i<word.size(); i++) {
+            cout <<  to_string(word[i].direccion) << " :: "<< to_string(word[i].elemento)<< endl;
+        
+        }
+    
+    }
+
 }
 
 char Memoria::getByte(int32_t position){

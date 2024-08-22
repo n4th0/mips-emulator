@@ -7,11 +7,9 @@ using namespace std;
 const string filename = "archivo.bin";
 
 
-
 bool writeFile(vector<int32_t> aux){
     fstream fr;
     fr.open(filename, ios::binary| ios::out);
-
 
     for (unsigned int i = 0; i<aux.size(); i++) {
         fr.write((const char *)&aux[i], sizeof(int32_t));
@@ -67,7 +65,8 @@ int main(){
     //                  mul      011100
     //
 
-    aux.push_back(0x00000004);
+    aux.push_back(0x2102000a);
+    aux.push_back(0x0000000c);
 
 
 

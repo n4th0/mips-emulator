@@ -22,9 +22,12 @@ que puedo y que no puedo hacer.
 
 ## Notas
 La memoria está simulada, en el sentido de que no se emula a bajo nivel como el caso de la ALU.
+Para el uso se debe de introducir la codificación de la instruccione en el archivo principal.cc, una vez metido debe compilarse y ejecutarse, para pasarle el archivo.bin a mips-emu.
 
 
 ## Inspiraciones/Fuentes de información
 - La asignatura de EC de la carrera de ingenieria informática.
 - El simulador MARS.
+
+
 

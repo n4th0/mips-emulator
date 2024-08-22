@@ -155,13 +155,13 @@ void printRegisters(int32_t * R){
 
 int main(int argc, char **argv){
     string filename;
+
     if (argc == 2) {
         filename = argv[1];
     }else {
         cout << "Uso: \n ./mips-emu nombreDelArchivo"<<endl;
+        return 1;
     }
-
-
 
     int64_t aux; 
     int32_t a;
@@ -175,12 +175,17 @@ int main(int argc, char **argv){
 
     Memoria Memoria;
 
+    Memoria.useVector(Memoria.readFile(filename));
+
+
+    Memoria.printMemory(0);
+
     // int32_t MemoriaI[1000];  // ojalá se pudiese
 
     int32_t AluOut = 0;
 
     uint32_t Instruccion;
-    uint32_t PC = 0;
+    uint32_t PC = 0x00400000;
 
     char op; 
     char func; 

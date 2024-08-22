@@ -30,8 +30,7 @@ class Memoria{
         vector<B> bytes; 
         vector<Half> halfword;
         vector<Word> word;
-        bool checkColisions(); // esta funcion debe de decirnos si hay solapamiento en memoria
-
+        bool checkColisions(); // esta funcion debe de decirnos si hay solapamiento en memor
     public:
         Memoria();
         // devuelve la posicion, si no la encuentra es -1 (excepcion)
@@ -39,6 +38,7 @@ class Memoria{
 
         vector<int32_t> readFile(string name);
         bool useVector(vector<int32_t> v);
+        void printMemory(int a);
 
         char getByte(int position); 
         int16_t getHalf(int position);
